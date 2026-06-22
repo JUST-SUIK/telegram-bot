@@ -26,5 +26,6 @@ def test_execute_command_failure():
 
 def test_execute_command_timeout():
     """Test command timeout."""
-    result = execute_command('timeout 5', timeout=1)
+    # Use Python sleep for cross-platform compatibility
+    result = execute_command('python -c "import time; time.sleep(10)"', timeout=1)
     assert result['success'] is False

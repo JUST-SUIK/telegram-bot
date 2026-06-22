@@ -2,11 +2,18 @@
 
 try:
     import pyautogui
-    # Disable pyautogui failsafe
-    pyautogui.FAILSAFE = False
+    # Keep FAILSAFE enabled for safety - move mouse to corner to abort
+    pyautogui.FAILSAFE = True
+    # Set a small pause between actions for stability
+    pyautogui.PAUSE = 0.1
 except ImportError:
     pyautogui = None
-    print("Warning: pyautogui not installed. GUI automation features will be disabled.")
+    import logging
+    logging.warning("pyautogui not installed. GUI automation features will be disabled.")
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 def click_at(x: int, y: int) -> bool:
     """Click at screen coordinates.
@@ -18,11 +25,14 @@ def click_at(x: int, y: int) -> bool:
     Returns:
         bool: True if successful
     """
+    if pyautogui is None:
+        logger.error("pyautogui not installed")
+        return False
     try:
         pyautogui.click(x, y)
         return True
     except Exception as e:
-        print(f"Click failed: {e}")
+        logger.error(f"Click failed at ({x}, {y}): {e}")
         return False
 
 def type_text(text: str) -> bool:
@@ -34,11 +44,15 @@ def type_text(text: str) -> bool:
     Returns:
         bool: True if successful
     """
+    if pyautogui is None:
+        logger.error("pyautogui not installed")
+        return False
     try:
-        pyautogui.typewrite(text, interval=0.05)
+        # Use write() for better Unicode support
+        pyautogui.write(text, interval=0.05)
         return True
     except Exception as e:
-        print(f"Type failed: {e}")
+        logger.error(f"Type failed: {e}")
         return False
 
 def press_key(key: str) -> bool:
@@ -50,11 +64,14 @@ def press_key(key: str) -> bool:
     Returns:
         bool: True if successful
     """
+    if pyautogui is None:
+        logger.error("pyautogui not installed")
+        return False
     try:
         pyautogui.press(key)
         return True
     except Exception as e:
-        print(f"Key press failed: {e}")
+        logger.error(f"Key press failed for '{key}': {e}")
         return False
 
 def move_to(x: int, y: int) -> bool:
@@ -67,9 +84,12 @@ def move_to(x: int, y: int) -> bool:
     Returns:
         bool: True if successful
     """
+    if pyautogui is None:
+        logger.error("pyautogui not installed")
+        return False
     try:
         pyautogui.moveTo(x, y)
         return True
     except Exception as e:
-        print(f"Move failed: {e}")
+        logger.error(f"Move failed to ({x}, {y}): {e}")
         return False

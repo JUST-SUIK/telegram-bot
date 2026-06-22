@@ -8,7 +8,8 @@ a = Analysis(
     binaries=[],
     datas=[
         ('src/config', 'src/config'),
-        ('.env', '.'),
+        # Note: .env file is NOT bundled for security reasons
+        # It should be placed next to the executable at runtime
     ],
     hiddenimports=[
         'telegram',

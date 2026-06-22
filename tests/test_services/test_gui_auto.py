@@ -16,7 +16,7 @@ def test_type_text_returns_true():
     with patch('src.bot.services.gui_auto.pyautogui') as mock_pyautogui:
         result = type_text('hello')
         assert result is True
-        mock_pyautogui.typewrite.assert_called_once_with('hello', interval=0.05)
+        mock_pyautogui.write.assert_called_once_with('hello', interval=0.05)
 
 def test_press_key_returns_true():
     """Test that press_key returns True on success."""

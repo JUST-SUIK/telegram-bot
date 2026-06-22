@@ -3,8 +3,11 @@
 import os
 import base64
 import json
+import logging
 from openai import OpenAI
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 def identify_element(screenshot_bytes: bytes, target: str) -> dict:
     """Identify UI element in screenshot.
@@ -20,7 +23,7 @@ def identify_element(screenshot_bytes: bytes, target: str) -> dict:
         result = call_mimo_vision(screenshot_bytes, target)
         return result
     except Exception as e:
-        print(f"Vision agent error: {e}")
+        logger.error(f"Vision agent error: {e}")
         return {'found': False, 'x': 0, 'y': 0, 'confidence': 0.0}
 
 def call_mimo_vision(screenshot_bytes: bytes, target: str) -> dict:

@@ -1,7 +1,6 @@
 """Command execution service."""
 
 import subprocess
-import sys
 
 def execute_command(command: str, timeout: int = 30) -> dict:
     """Execute a system command.
