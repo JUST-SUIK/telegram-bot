@@ -93,7 +93,17 @@ def analyze_with_ai(message: str) -> dict:
             max_tokens=300
         )
 
-        response_text = response.choices[0].message.content.strip()
+        # MiMo API 返回格式与 OpenAI 不同
+        # 内容可能在 content 或 reasoning_content 字段
+        message = response.choices[0].message
+        response_text = message.content or ''
+
+        # 如果 content 为空，尝试从 model_extra 获取 reasoning_content
+        if not response_text:
+            extra = message.model_extra or {}
+            response_text = extra.get('reasoning_content', '')
+
+        response_text = response_text.strip()
         logger.info(f"[AI] 原始响应: {response_text}")
 
         # Try to parse JSON
