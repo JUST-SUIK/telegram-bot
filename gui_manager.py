@@ -298,24 +298,27 @@ class BotManagerGUI:
 
     def _kill_all_bot_instances(self):
         """Kill all existing bot instances."""
+        project_dir = str(Path(__file__).parent).lower()
         for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cwd']):
             try:
                 cmdline = proc.info.get('cmdline', [])
                 cwd = proc.info.get('cwd', '')
-                if cmdline and len(cmdline) >= 2:
-                    # Check if this is a python run.py process
-                    exe_name = cmdline[0].lower()
-                    script_name = cmdline[1].lower()
-
-                    if ('python' in exe_name or 'pythonw' in exe_name) and script_name == 'run.py':
+                if cmdline:
+                    cmdline_str = ' '.join(cmdline).lower()
+                    # Check if this is a run.py process (any python variant)
+                    if 'run.py' in cmdline_str:
                         # Check if it's in our project directory
                         if cwd and 'telegram-bot' in cwd.lower():
                             pid = proc.info['pid']
+                            # Don't kill our own managed process
                             if self.bot_process and pid == self.bot_process.pid:
                                 continue
-                            p = psutil.Process(pid)
-                            p.terminate()
-                            self._log_to_display(f"[{datetime.now().strftime('%H:%M:%S')}] 已停止旧实例 (PID: {pid})")
+                            try:
+                                p = psutil.Process(pid)
+                                p.terminate()
+                                self._log_to_display(f"[{datetime.now().strftime('%H:%M:%S')}] 已停止旧实例 (PID: {pid})")
+                            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                                pass
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 pass
 
@@ -360,13 +363,10 @@ class BotManagerGUI:
             try:
                 cmdline = proc.info.get('cmdline', [])
                 cwd = proc.info.get('cwd', '')
-                if cmdline and len(cmdline) >= 2:
-                    # Check if this is a python run.py process
-                    # cmdline should be like ['python.exe', 'run.py'] or ['pythonw.exe', 'run.py']
-                    exe_name = cmdline[0].lower()
-                    script_name = cmdline[1].lower()
-
-                    if ('python' in exe_name or 'pythonw' in exe_name) and script_name == 'run.py':
+                if cmdline:
+                    cmdline_str = ' '.join(cmdline).lower()
+                    # Check if this is a run.py process (any python variant)
+                    if 'run.py' in cmdline_str:
                         # Check if it's in our project directory
                         if cwd and 'telegram-bot' in cwd.lower():
                             count += 1
