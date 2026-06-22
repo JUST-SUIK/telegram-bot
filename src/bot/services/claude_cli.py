@@ -2,6 +2,7 @@
 
 import subprocess
 import os
+import platform
 from typing import Optional
 
 def ask_claude(question: str, working_dir: Optional[str] = None) -> dict:
@@ -21,8 +22,28 @@ def ask_claude(question: str, working_dir: Optional[str] = None) -> dict:
         working_dir = default_working_dir
 
     try:
-        # Build command
-        cmd = [cli_path, '--print', question]
+        # Check if running on Windows
+        is_windows = platform.system() == 'Windows'
+
+        # Build command based on platform
+        if is_windows:
+            # On Windows, use bash to execute shell scripts
+            # Find bash executable
+            bash_path = None
+            for path in ['C:/Program Files/Git/bin/bash.exe', 'C:/Program Files (x86)/Git/bin/bash.exe']:
+                if os.path.exists(path):
+                    bash_path = path
+                    break
+
+            if bash_path:
+                # Use bash to execute the script
+                cmd = [bash_path, cli_path, '--print', question]
+            else:
+                # Try using sh directly (Git Bash)
+                cmd = ['sh', cli_path, '--print', question]
+        else:
+            # On Unix/Linux/Mac, execute directly
+            cmd = [cli_path, '--print', question]
 
         # Execute Claude CLI
         result = subprocess.run(

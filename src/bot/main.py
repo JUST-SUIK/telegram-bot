@@ -19,6 +19,7 @@ from src.bot.handlers.command import exec_command
 from src.bot.handlers.screenshot import screenshot_command
 from src.bot.handlers.gui import click_command, type_command, key_command
 from src.bot.handlers.claude import ask_command
+from src.bot.handlers.natural_language import handle_natural_language
 
 logger = setup_logger(__name__)
 
@@ -44,7 +45,13 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     welcome_message = (
         "🤖 Telegram Bot Agent\n\n"
         "欢迎使用远程电脑控制机器人！\n\n"
-        "可用命令：\n"
+        "✨ 新功能：现在支持自然语言对话！\n"
+        "你可以直接说：\n"
+        "- 帮我截图\n"
+        "- 查看状态\n"
+        "- 点击确认按钮\n"
+        "- 什么是 Python？\n\n"
+        "也可以使用命令：\n"
         "/start - 显示欢迎信息\n"
         "/help - 显示帮助信息\n"
         "/status - 查看进程状态\n"
@@ -66,18 +73,25 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     help_message = (
-        "📖 命令帮助\n\n"
-        "监控命令：\n"
+        "📖 使用帮助\n\n"
+        "✨ 自然语言使用（推荐）：\n"
+        "直接发送消息即可，例如：\n"
+        "- 帮我截图\n"
+        "- 查看状态\n"
+        "- 有什么程序在运行\n"
+        "- 点击确认按钮\n"
+        "- 输入 hello\n"
+        "- 按下回车\n"
+        "- 执行 dir 命令\n"
+        "- 什么是 Python？\n\n"
+        "📋 命令列表：\n"
         "/status [进程名] - 查看进程状态\n"
-        "/list - 列出所有运行中的进程\n\n"
-        "操作命令：\n"
+        "/list - 列出所有运行中的进程\n"
         "/screenshot - 截取屏幕\n"
-        "/exec <命令> - 执行系统命令\n\n"
-        "GUI 命令：\n"
+        "/exec <命令> - 执行系统命令\n"
         "/click <目标> - 点击元素\n"
         "/type <文本> - 输入文本\n"
-        "/key <按键> - 按下按键\n\n"
-        "AI 命令：\n"
+        "/key <按键> - 按下按键\n"
         "/ask <问题> - 向 AI 提问\n"
     )
     await update.message.reply_text(help_message)
@@ -143,7 +157,8 @@ async def handle_confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE
             else:
                 await update.message.reply_text(f"❌ 点击失败")
         else:
-            await update.message.reply_text("没有待确认的操作")
+            # If no pending operation, treat as natural language
+            await handle_natural_language(update, context)
 
     elif text == '取消':
         if 'pending_click' in context.user_data:
@@ -151,6 +166,10 @@ async def handle_confirmation(update: Update, context: ContextTypes.DEFAULT_TYPE
             await update.message.reply_text("✅ 已取消操作")
         else:
             await update.message.reply_text("没有待取消的操作")
+
+    else:
+        # For all other messages, use natural language handler
+        await handle_natural_language(update, context)
 
 def create_application():
     """Create and configure Telegram application.
@@ -166,7 +185,11 @@ def create_application():
 
     if config['telegram']['proxy']['enabled']:
         proxy_url = config['telegram']['proxy']['url']
-        builder = builder.proxy(proxy_url)
+        # Use httpx.Proxy for HTTP proxy
+        import httpx
+        proxy = httpx.Proxy(proxy_url)
+        # Configure both proxy and get_updates_proxy
+        builder = builder.proxy(proxy).get_updates_proxy(proxy)
         logger.info(f"Proxy configured: {proxy_url}")
 
     application = builder.build()
@@ -183,8 +206,10 @@ def create_application():
     application.add_handler(CommandHandler("key", auth_key_command))
     application.add_handler(CommandHandler("ask", auth_ask_command))
 
-    # Add message handler for confirmations
+    # Add message handler for confirmations and natural language
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_confirmation))
+
+    logger.info("Natural language processing enabled")
 
     return application
 

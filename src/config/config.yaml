@@ -5,7 +5,7 @@ telegram:
     - 6531095340
   proxy:
     enabled: true
-    url: "socks5://127.0.0.1:7897"
+    url: "http://127.0.0.1:7897"
 
 # Monitor Configuration
 monitor:
