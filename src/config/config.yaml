@@ -1,0 +1,48 @@
+# Telegram Bot Configuration
+telegram:
+  token: ${TELEGRAM_BOT_TOKEN}
+  allowed_users:
+    - 6531095340
+  proxy:
+    enabled: true
+    url: "socks5://127.0.0.1:7897"
+
+# Monitor Configuration
+monitor:
+  interval: 60
+  targets: []
+
+# Screenshot Configuration
+screenshot:
+  max_width: 1920
+  format: "png"
+  quality: 85
+
+# GUI Automation Configuration
+gui:
+  confirm_before_click: true
+  click_delay: 0.5
+
+# Claude Code Configuration
+claude:
+  cli_path: "/c/Users/GUDGA/.openclaw/claude"
+  timeout: 120
+  working_dir: "E:/Project"
+
+# Executor Configuration
+executor:
+  timeout: 30
+  blacklist:
+    - "rm -rf"
+    - "format"
+    - "shutdown"
+    - "del /f /s /q"
+    - "taskkill /f"
+    - "rmdir /s /q"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  file: "./log/bot.log"
+  max_size: 10
+  backup_count: 5
