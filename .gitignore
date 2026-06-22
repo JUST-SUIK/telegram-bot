@@ -38,7 +38,6 @@ ENV/
 log/*.log
 
 # PyInstaller
-*.spec
 *.exe
 
 # OS
