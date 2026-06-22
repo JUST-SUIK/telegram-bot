@@ -48,3 +48,7 @@ Thumbs.db
 .pytest_cache/
 htmlcov/
 .coverage
+
+# Windows shortcuts
+*.lnk
+*.vbs

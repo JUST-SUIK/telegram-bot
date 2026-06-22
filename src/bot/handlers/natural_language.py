@@ -99,8 +99,17 @@ def analyze_with_ai(message: str) -> dict:
         return {"action": "chat", "params": "", "response": response_text}
 
     except Exception as e:
-        logger.error(f"AI analysis error: {e}")
-        return {"action": "chat", "params": "", "response": "抱歉，我暂时无法处理你的请求。"}
+        logger.error(f"AI analysis error: {type(e).__name__}: {e}")
+        # Return a more helpful error message
+        error_msg = str(e)
+        if "api_key" in error_msg.lower() or "auth" in error_msg.lower():
+            return {"action": "chat", "params": "", "response": "API Key 配置错误，请检查 .env 文件中的 MIMO_API_KEY"}
+        elif "timeout" in error_msg.lower():
+            return {"action": "chat", "params": "", "response": "AI 服务响应超时，请稍后再试"}
+        elif "connection" in error_msg.lower():
+            return {"action": "chat", "params": "", "response": "无法连接到 AI 服务，请检查网络和代理配置"}
+        else:
+            return {"action": "chat", "params": "", "response": f"AI 处理失败: {error_msg[:100]}"}
 
 async def handle_natural_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle natural language messages.
