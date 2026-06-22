@@ -11,6 +11,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from src.bot.utils.config import load_config
 from src.bot.utils.logger import setup_logger
+from src.bot.handlers.status import status_command, list_command
 
 logger = setup_logger(__name__)
 
@@ -67,6 +68,8 @@ def create_application():
     # Add command handlers
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("status", status_command))
+    application.add_handler(CommandHandler("list", list_command))
 
     return application
 
